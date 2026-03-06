@@ -6,7 +6,8 @@ import { useAuthStore } from '../../store/authStore';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
-import { RegisterRequest } from 'shared-types';
+import { RegisterRequest, LoginResponse } from 'shared-types';
+import { authApi } from '../../api/auth';
 
 const { Title, Text } = Typography;
 
@@ -47,23 +48,20 @@ const RegisterPage: React.FC = () => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      // TODO: Заменить на реальный API вызов
-      const mockUser = {
-        id: '1',
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        role: 'customer' as const,
-        createdAt: new Date().toISOString(),
-      };
-
-      login(mockUser, 'mock-access-token', 'mock-refresh-token');
+      const response: LoginResponse = await authApi.register(data);
+      
+      // Сохраняем данные пользователя
+      login(
+        response.user, 
+        response.accessToken, 
+        response.refreshToken
+      );
       
       message.success('Регистрация успешна!');
       navigate('/');
-    } catch (error) {
-      message.error('Ошибка регистрации. Попробуйте ещё раз.');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Ошибка регистрации';
+      message.error(errorMessage);
     }
   };
 

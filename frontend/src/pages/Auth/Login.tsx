@@ -6,7 +6,8 @@ import { useAuthStore } from '../../store/authStore';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
-import { LoginRequest } from 'shared-types';
+import { LoginRequest, LoginResponse } from 'shared-types';
+import { authApi } from '../../api/auth';
 
 const { Title, Text } = Typography;
 
@@ -36,23 +37,20 @@ const LoginPage: React.FC = () => {
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      // TODO: Заменить на реальный API вызов
-      // Пока имитируем успешную авторизацию
-      const mockUser = {
-        id: '1',
-        email: data.email,
-        firstName: 'Иван',
-        lastName: 'Иванов',
-        role: 'customer' as const,
-        createdAt: new Date().toISOString(),
-      };
-
-      login(mockUser, 'mock-access-token', 'mock-refresh-token');
+      const response: LoginResponse = await authApi.login(data);
+      
+      // Сохраняем данные пользователя
+      login(
+        response.user, 
+        response.accessToken, 
+        response.refreshToken
+      );
       
       message.success('Добро пожаловать!');
       navigate('/');
-    } catch (error) {
-      message.error('Ошибка авторизации. Проверьте данные.');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Ошибка авторизации';
+      message.error(errorMessage);
     }
   };
 

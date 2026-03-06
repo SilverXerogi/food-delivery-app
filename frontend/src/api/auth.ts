@@ -8,13 +8,12 @@ export const authApi = {
   register: (data: RegisterRequest): Promise<LoginResponse> => 
     apiClient.post('/auth/register', data).then(res => res.data),
   
-  logout: (): Promise<void> => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    return Promise.resolve();
-  },
+  logout: (): Promise<{ message: string }> => 
+    apiClient.post('/auth/logout').then(res => res.data),
   
   getCurrentUser: (): Promise<any> => 
     apiClient.get('/auth/me').then(res => res.data),
+
+  refreshToken: (refreshToken: string): Promise<LoginResponse> => 
+    apiClient.post('/auth/refresh', { refreshToken }).then(res => res.data),
 };
