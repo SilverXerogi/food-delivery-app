@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": [
+      "ES2020"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared-types/src/*"]
+    },
+    "outDir": "./dist", 
+    //"rootDir": "./src", //Не работает на данный момент
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    
+  },
+  "include": [
+    "src/**/*",
+    "../shared-types/src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
