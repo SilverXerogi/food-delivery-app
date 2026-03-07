@@ -3,16 +3,16 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "declaration": true, // <- Генерирует .d.ts файлы
+    "declarationMap": true, // <- Карта для .d.ts файлов (для отладки)
+    "sourceMap": true, // <- Карта для .js файлов (для отладки)
+    "outDir": "./dist", // <- Сюда будут скомпилированы файлы
+    "rootDir": "./src", // <- Откуда брать исходники
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "composite": true
+    "composite": true // <- ВАЖНО для references
   },
   "include": [
     "src/**/*"

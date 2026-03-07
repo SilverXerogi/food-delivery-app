@@ -1,25 +1,17 @@
 {
-  "name": "auth-service",
+  "name": "catalog-service",
   "version": "1.0.0",
-  "description": "",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
     "build": "tsc"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "express": "^4.21.2",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
     "pg": "^8.13.1",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "joi": "^17.13.3",
-    "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
@@ -27,12 +19,9 @@
     "@types/express": "^5.0.0",
     "@types/cors": "^2.8.17",
     "@types/pg": "^8.11.11",
-    "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/joi": "^17.2.3",
+    "@types/swagger-ui-express": "^4.1.8",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "@types/swagger-ui-express": "^4.1.8",
     "@food-delivery-app/shared-types": "../shared-types"
   }
 }

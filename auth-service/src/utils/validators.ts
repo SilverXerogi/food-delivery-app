@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import type { LoginRequest, RegisterRequest, RefreshTokenRequest } from '../../../shared-types/src';
+import type { LoginRequest, RegisterRequest, RefreshTokenRequest } from '@food-delivery-app/shared-types';
 
 export const loginSchema = Joi.object<LoginRequest>({
   email: Joi.string().email().required(),

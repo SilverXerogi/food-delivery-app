@@ -6,20 +6,20 @@ COPY shared-types/package*.json ./shared-types/
 COPY shared-types ./shared-types
 RUN cd /app/shared-types && rm -f tsconfig.tsbuildinfo && npm ci && npm run build
 
-COPY auth-service/package*.json ./auth-service/
-RUN cd /app/auth-service && npm ci --include=dev
-COPY auth-service ./auth-service
-RUN cd /app/auth-service && npm run build && npm prune --omit=dev
+COPY cabinet-service/package*.json ./cabinet-service/
+RUN cd /app/cabinet-service && npm ci --include=dev
+COPY cabinet-service ./cabinet-service
+RUN cd /app/cabinet-service && npm run build && npm prune --omit=dev
 
 FROM node:20-alpine AS runtime
 WORKDIR /usr/src/app
 RUN apk add --no-cache dumb-init
 
-COPY auth-service/package*.json ./
-COPY --from=builder /app/auth-service/node_modules ./node_modules
-COPY --from=builder /app/auth-service/dist ./dist
+COPY cabinet-service/package*.json ./
+COPY --from=builder /app/cabinet-service/node_modules ./node_modules
+COPY --from=builder /app/cabinet-service/dist ./dist
 
 USER node
-EXPOSE 3001
+EXPOSE 3003
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "dist/server.js"]

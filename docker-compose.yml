@@ -32,6 +32,40 @@ services:
     networks:
       - delivery_net
 
+  catalog-service:
+    build:
+      context: .
+      dockerfile: catalog-service/Dockerfile
+    container_name: delivery_catalog_service
+    environment:
+      PORT: 3002
+      DATABASE_URL: postgresql://user:password@postgres:5432/delivery_db
+      NODE_ENV: production
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres
+    networks:
+      - delivery_net
+
+  cabinet-service:
+    build:
+      context: .
+      dockerfile: cabinet-service/Dockerfile
+    container_name: delivery_cabinet_service
+    environment:
+      PORT: 3003
+      DATABASE_URL: postgresql://user:password@postgres:5432/delivery_db
+      JWT_ACCESS_SECRET: your_super_secret_access_key_here
+      NODE_ENV: production
+    ports:
+      - "3003:3003"
+    depends_on:
+      - postgres
+      - auth-service
+    networks:
+      - delivery_net
+
   frontend:
     build:
       context: .
@@ -41,6 +75,8 @@ services:
       - "80:80"
     depends_on:
       - auth-service
+      - catalog-service
+      - cabinet-service
     networks:
       - delivery_net
 

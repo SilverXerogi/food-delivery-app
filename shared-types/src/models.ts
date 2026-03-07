@@ -1,6 +1,5 @@
-import { OrderStatus, UserRole, ProductCategory } from './enums';
+import type { OrderStatus, UserRole, ProductCategory } from './enums';
 
-// Пользователь
 export interface User {
   id: string;
   email: string;
@@ -11,7 +10,6 @@ export interface User {
   createdAt: string;
 }
 
-// Продукт
 export interface Product {
   id: string;
   name: string;
@@ -22,10 +20,9 @@ export interface Product {
   categoryName: string;
   categoryKey: ProductCategory;
   inStock: boolean;
-  weight?: string; // "500г", "1кг"
+  weight?: string;
 }
 
-// Категория
 export interface Category {
   id: string;
   name: string;
@@ -34,7 +31,6 @@ export interface Category {
   key: ProductCategory;
 }
 
-// Элемент корзины (клиентская сущность)
 export interface CartItem {
   id: string;
   productId: string;
@@ -45,7 +41,6 @@ export interface CartItem {
   weight?: string;
 }
 
-// Заказ
 export interface Order {
   id: string;
   userId: string;
@@ -58,19 +53,10 @@ export interface Order {
   updatedAt: string;
 }
 
-// Элемент заказа
 export interface OrderItem {
   productId: string;
   productName: string;
   price: number;
   quantity: number;
   weight?: string;
-}
-
-// Адрес доставки
-export interface DeliveryAddress {
-  id: string;
-  userId: string;
-  address: string;
-  isDefault: boolean;
 }

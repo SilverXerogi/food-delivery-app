@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import type { User } from '../../../shared-types/src';
+import type { User } from '@food-delivery-app/shared-types';
 
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'fallback_access_secret_key_change_me';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret_key_change_me';

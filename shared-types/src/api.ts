@@ -1,7 +1,6 @@
 import type { User, Product, Order, CartItem } from './models';
-import { OrderStatus } from './enums';
+import type { OrderStatus } from './enums';
 
-// === Auth ===
 export interface LoginRequest {
   email: string;
   password: string;
@@ -25,7 +24,6 @@ export interface RefreshTokenRequest {
   refreshToken: string;
 }
 
-// === Products ===
 export interface GetProductsParams {
   categoryId?: string;
   search?: string;
@@ -40,7 +38,6 @@ export interface GetProductsResponse {
   limit: number;
 }
 
-// === Cart ===
 export interface AddToCartRequest {
   productId: string;
   quantity: number;
@@ -56,10 +53,15 @@ export interface CartResponse {
   totalAmount: number;
 }
 
-// === Orders ===
+export interface CreateOrderItemRequest {
+  productId: string;
+  quantity: number;
+}
+
 export interface CreateOrderRequest {
   deliveryAddress: string;
   comment?: string;
+  items: CreateOrderItemRequest[];
 }
 
 export interface CreateOrderResponse {
@@ -79,19 +81,8 @@ export interface GetOrdersResponse {
   limit: number;
 }
 
-// === Profile ===
 export interface UpdateProfileRequest {
   firstName?: string;
   lastName?: string;
   phone?: string;
-}
-
-export interface CreateAddressRequest {
-  address: string;
-  isDefault?: boolean;
-}
-
-export interface UpdateAddressRequest {
-  address?: string;
-  isDefault?: boolean;
 }

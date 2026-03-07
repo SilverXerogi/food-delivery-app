@@ -3,7 +3,7 @@ import pool from '../db/pool';
 import { hashPassword, verifyPassword } from '../utils/password';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { loginSchema, registerSchema, refreshTokenSchema } from '../utils/validators';
-import type { User, LoginResponse } from '../../../shared-types/src';
+import type { User, LoginResponse } from '@food-delivery-app/shared-types';
 
 const mapUserRow = (userRecord: any): Omit<User, 'password'> => ({
   id: userRecord.id,

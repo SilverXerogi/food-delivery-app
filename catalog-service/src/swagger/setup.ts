@@ -1,18 +1,18 @@
 import type { Express, Request, Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
-import authSwaggerSpec from './specs';
+import catalogSwaggerSpec from './specs';
 
 export const setupSwagger = (app: Express) => {
   app.get('/docs.json', (_req: Request, res: Response) => {
-    res.type('application/json').send(authSwaggerSpec);
+    res.type('application/json').send(catalogSwaggerSpec);
   });
 
   app.use(
     '/docs',
     swaggerUi.serve,
-    swaggerUi.setup(authSwaggerSpec, {
+    swaggerUi.setup(catalogSwaggerSpec, {
       explorer: true,
-      customSiteTitle: 'Food Delivery • Auth Service API',
+      customSiteTitle: 'Food Delivery • Catalog Service API',
     })
   );
 };
