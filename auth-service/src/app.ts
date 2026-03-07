@@ -9,9 +9,6 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Поддерживаем оба префикса:
-// - /api/auth/* для фронтенда через nginx
-// - /auth/* для прямой отладки бэка на localhost:3001
 app.use('/api/auth', authRoutes);
 app.use('/auth', authRoutes);
 

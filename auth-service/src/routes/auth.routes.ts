@@ -5,12 +5,6 @@ import * as authController from '../controllers/auth.controller';
 
 const router = Router();
 
-// Эти роуты будут доступны как:
-// POST http://localhost:3001/auth/login
-// POST http:// localhost:3001/auth/register
-// GET  http:// localhost:3001/auth/me (с токеном)
-// POST http:// localhost:3001/auth/logout (с токеном)
-// POST http:// localhost:3001/auth/refresh
 router.post('/login', authController.login);
 router.post('/register', authController.register);
 router.post('/refresh', authController.refreshToken);
