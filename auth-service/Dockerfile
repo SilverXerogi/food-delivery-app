@@ -1,26 +1,30 @@
-FROM node:18-alpine
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY auth-service/package*.json ./
-RUN npm ci
+COPY shared-types/package*.json ./shared-types/
+COPY auth-service/package*.json ./auth-service/
+
+RUN cd /app/shared-types && npm install
+RUN cd /app/auth-service && npm install
 
 COPY shared-types ./shared-types
+COPY auth-service ./auth-service
 
-COPY auth-service/src ./src
+RUN cd /app/shared-types && npm run build
+RUN cd /app/auth-service && npm run build
 
-COPY auth-service/tsconfig.json ./tsconfig.json
+FROM node:20-alpine AS runtime
 
-RUN echo '{ "extends": "./tsconfig.json", "compilerOptions": { "baseUrl": ".", "paths": { "@shared/*": ["./shared-types/src/*"] } }, "include": ["src/**/*", "./shared-types/src/**/*"] }' > tsconfig.docker.build.json
-
-RUN npx tsc --project tsconfig.docker.build.json
-
-RUN rm -rf src shared-types
-RUN rm -rf node_modules
+WORKDIR /usr/src/app
+RUN apk add --no-cache dumb-init
 
 COPY auth-service/package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev && npm cache clean --force
 
-EXPOSE 3000
+COPY --from=builder /app/auth-service/dist ./dist
 
-CMD [ "node", "dist/index.js" ]
+USER node
+EXPOSE 3001
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/server.js"]

@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- Таблица категорий
 CREATE TABLE IF NOT EXISTS categories (
@@ -6,7 +7,7 @@ CREATE TABLE IF NOT EXISTS categories (
   name TEXT NOT NULL,
   description TEXT,
   image_url TEXT,
-  key TEXT NOT NULL UNIQUE -- 'vegetables', 'fruits' и т.д.
+  key TEXT NOT NULL UNIQUE
 );
 
 -- Таблица продуктов
@@ -38,7 +39,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Таблица refresh токенов
 CREATE TABLE IF NOT EXISTS refresh_tokens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
   token TEXT NOT NULL UNIQUE,
   expires_at TIMESTAMPTZ NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()

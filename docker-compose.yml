@@ -1,32 +1,52 @@
 services:
-  db:
-    image: postgres:15
+  postgres:
+    image: postgres:18-alpine
+    container_name: delivery_postgres
     environment:
+      POSTGRES_DB: delivery_db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: delivery_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     ports:
       - "5432:5432"
-    volumes:
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d delivery_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    networks:
+      - delivery_net
 
   auth-service:
     build:
-      context: . 
-      dockerfile: ./auth-service/Dockerfile
-    ports:
-      - "3000:3000"
+      context: .
+      dockerfile: auth-service/Dockerfile
+    container_name: delivery_auth_service
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/delivery_db
-      - JWT_ACCESS_SECRET=your_super_secret_access_key_here
-      - JWT_REFRESH_SECRET=your_super_secret_refresh_key_here
-      - PORT=3000
+      PORT: 3001
+      DATABASE_URL: postgresql://user:password@postgres:5432/delivery_db
+      JWT_ACCESS_SECRET: your_super_secret_access_key_here
+      JWT_REFRESH_SECRET: your_super_secret_refresh_key_here
+      NODE_ENV: production
+    ports:
+      - "3001:3001"
     depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
+      - postgres
+    networks:
+      - delivery_net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: delivery_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+    networks:
+      - delivery_net
+
+networks:
+  delivery_net:
+    driver: bridge
+
+volumes:
+  postgres_data:

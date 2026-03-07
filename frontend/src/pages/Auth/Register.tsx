@@ -6,12 +6,11 @@ import { useAuthStore } from '../../store/authStore';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
-import { RegisterRequest, LoginResponse } from 'shared-types';
+import type { LoginResponse, RegisterRequest } from 'shared-types';
 import { authApi } from '../../api/auth';
 
 const { Title, Text } = Typography;
 
-// Валидация с Zod
 const registerSchema = z.object({
   firstName: z.string().min(2, 'Имя должно быть не менее 2 символов'),
   lastName: z.string().min(2, 'Фамилия должна быть не менее 2 символов'),
@@ -30,10 +29,10 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
-  const { 
-    control, 
-    handleSubmit, 
-    formState: { errors, isSubmitting } 
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting }
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -48,15 +47,11 @@ const RegisterPage: React.FC = () => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      const response: LoginResponse = await authApi.register(data);
-      
-      // Сохраняем данные пользователя
-      login(
-        response.user, 
-        response.accessToken, 
-        response.refreshToken
-      );
-      
+      const { confirmPassword: _confirmPassword, ...payload } = data;
+      const response: LoginResponse = await authApi.register(payload as RegisterRequest);
+
+      login(response.user, response.accessToken, response.refreshToken);
+
       message.success('Регистрация успешна!');
       navigate('/');
     } catch (error: any) {
@@ -66,14 +61,14 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
       minHeight: 'calc(100vh - 120px)',
       padding: '20px',
     }}>
-      <Card 
+      <Card
         style={{ width: '100%', maxWidth: '450px' }}
         title={
           <div style={{ textAlign: 'center' }}>
@@ -93,9 +88,9 @@ const RegisterPage: React.FC = () => {
               name="firstName"
               control={control}
               render={({ field }) => (
-                <Input 
-                  {...field} 
-                  prefix={<UserOutlined />} 
+                <Input
+                  {...field}
+                  prefix={<UserOutlined />}
                   placeholder="Введите ваше имя"
                   size="large"
                 />
@@ -113,9 +108,9 @@ const RegisterPage: React.FC = () => {
               name="lastName"
               control={control}
               render={({ field }) => (
-                <Input 
-                  {...field} 
-                  prefix={<UserOutlined />} 
+                <Input
+                  {...field}
+                  prefix={<UserOutlined />}
                   placeholder="Введите вашу фамилию"
                   size="large"
                 />
@@ -133,9 +128,9 @@ const RegisterPage: React.FC = () => {
               name="email"
               control={control}
               render={({ field }) => (
-                <Input 
-                  {...field} 
-                  prefix={<MailOutlined />} 
+                <Input
+                  {...field}
+                  prefix={<MailOutlined />}
                   placeholder="Введите ваш email"
                   size="large"
                 />
@@ -152,9 +147,9 @@ const RegisterPage: React.FC = () => {
               name="phone"
               control={control}
               render={({ field }) => (
-                <Input 
-                  {...field} 
-                  prefix={<PhoneOutlined />} 
+                <Input
+                  {...field}
+                  prefix={<PhoneOutlined />}
                   placeholder="+7 (999) 123-45-67"
                   size="large"
                 />
@@ -203,11 +198,11 @@ const RegisterPage: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button 
-              type="primary" 
-              htmlType="submit" 
-              size="large" 
-              block 
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              block
               loading={isSubmitting}
             >
               Зарегистрироваться

@@ -1,4 +1,4 @@
-import { User, Product, Order, DeliveryAddress, CartItem, Category } from './models';
+import type { User, Product, Order, CartItem } from './models';
 import { OrderStatus } from './enums';
 
 // === Auth ===

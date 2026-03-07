@@ -12,7 +12,7 @@ import {
   LoginResponse,
   RegisterRequest,
   RefreshTokenRequest
-} from '@shared/index';
+} from '../../shared-types/src';
 
 const app = express();
 const PORT = process.env.PORT || 3000;

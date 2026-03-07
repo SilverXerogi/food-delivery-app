@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCartOutlined, UserOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons';
-import { Button, Badge, Space, Layout } from 'antd';
+import { Button, Badge, Space, Layout, message } from 'antd';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
+import { authApi } from '../../api/auth';
 
 const { Header: AntHeader } = Layout;
 
@@ -12,17 +13,24 @@ const Header: React.FC = () => {
   const { items } = useCartStore();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+    } catch (_error) {
+      // Даже если серверный logout не удался, очищаем клиентское состояние.
+    } finally {
+      logout();
+      message.success('Вы вышли из аккаунта');
+      navigate('/login');
+    }
   };
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <AntHeader style={{ 
-      display: 'flex', 
-      justifyContent: 'space-between', 
+    <AntHeader style={{
+      display: 'flex',
+      justifyContent: 'space-between',
       alignItems: 'center',
       background: '#fff',
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -35,7 +43,7 @@ const Header: React.FC = () => {
         <Link to="/" style={{ fontSize: '24px', fontWeight: 'bold', color: '#1890ff' }}>
           🛒 Food Delivery
         </Link>
-        
+
         <Space size="large">
           <Link to="/" style={{ color: '#595959', textDecoration: 'none' }}>
             Каталог
@@ -58,8 +66,8 @@ const Header: React.FC = () => {
           <>
             <Badge count={totalItems} size="small">
               <Link to="/cart">
-                <Button 
-                  icon={<ShoppingCartOutlined />} 
+                <Button
+                  icon={<ShoppingCartOutlined />}
                   type="text"
                   size="large"
                 >
@@ -67,18 +75,18 @@ const Header: React.FC = () => {
                 </Button>
               </Link>
             </Badge>
-            
+
             <Space>
-              <Button 
-                icon={<UserOutlined />} 
+              <Button
+                icon={<UserOutlined />}
                 type="text"
                 size="large"
               >
                 {user?.firstName || 'Профиль'}
               </Button>
-              
-              <Button 
-                icon={<LogoutOutlined />} 
+
+              <Button
+                icon={<LogoutOutlined />}
                 onClick={handleLogout}
                 type="text"
                 size="large"
@@ -89,15 +97,15 @@ const Header: React.FC = () => {
           </>
         ) : (
           <Space>
-            <Button 
-              icon={<LoginOutlined />} 
+            <Button
+              icon={<LoginOutlined />}
               onClick={() => navigate('/login')}
             >
               Войти
             </Button>
-            
-            <Button 
-              type="primary" 
+
+            <Button
+              type="primary"
               onClick={() => navigate('/register')}
             >
               Регистрация

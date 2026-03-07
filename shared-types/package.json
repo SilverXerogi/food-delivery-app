@@ -1,5 +1,5 @@
 {
-  "name": "shared-types",
+  "name": "@food-delivery-app/shared-types",
   "version": "1.0.0",
   "description": "Shared TypeScript types for food delivery app",
   "main": "dist/index.js",
