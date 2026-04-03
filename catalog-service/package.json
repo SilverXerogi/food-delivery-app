@@ -1,0 +1,27 @@
+{
+  "name": "catalog-service",
+  "version": "1.0.0",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "pg": "^8.13.1",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/pg": "^8.11.11",
+    "@types/swagger-ui-express": "^4.1.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "@food-delivery-app/shared-types": "../shared-types"
+  }
+}

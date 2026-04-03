@@ -1,0 +1,30 @@
+// auth-service/tsconfig.json
+{
+  // Удаляем baseUrl, paths, корректируем include/exclude
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src", // <- Остается как было для auth-service
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+    // baseUrl и paths больше не нужны
+    // "baseUrl": ".",
+    // "paths": {
+    //   "@shared/*": ["../shared-types/src/*"]
+    // }
+  },
+  "references": [
+    { "path": "../shared-types" } // <- Ссылка на shared-types проект
+  ],
+  "files": [], // <- files пустой, используется include
+  "include": [
+    "src/**/*" // <- Только файлы auth-service
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
