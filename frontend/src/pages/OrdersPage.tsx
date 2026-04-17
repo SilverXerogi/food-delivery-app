@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Card, Collapse, Empty, List, Space, Spin, Tag, Typography } from 'antd';
-import { useGetOrdersQuery } from '../store/api';
+import { useStore } from '../store'; // Импорт MobX store
 
 const { Title, Text } = Typography;
 
@@ -13,8 +14,20 @@ const statusColors: Record<string, string> = {
   cancelled: 'red',
 };
 
-const OrdersPage: React.FC = () => {
-  const { data, isLoading, error, refetch } = useGetOrdersQuery({});
+const OrdersPage: React.FC = observer(() => { // Обернули компонент в observer
+  const { authStore, orderStore } = useStore(); // Получаем MobX stores (предполагаем, что есть orderStore)
+
+  useEffect(() => {
+    // Загрузка заказов при монтировании компонента, если пользователь авторизован
+    if (authStore.isAuthenticated && orderStore.orders.length === 0) {
+      orderStore.loadOrders();
+    }
+  }, []);
+
+  // Данные из orderStore
+  const orders = orderStore.orders; // или orderStore.filteredOrders, в зависимости от логики
+  const isLoading = orderStore.loading;
+  const error = orderStore.error;
 
   if (isLoading) {
     return (
@@ -24,18 +37,15 @@ const OrdersPage: React.FC = () => {
     );
   }
 
-  // ✅ FIX
   if (error) {
     return (
       <div style={{ padding: '40px', textAlign: 'center' }}>
-        <Text type="danger">Ошибка загрузки заказов</Text>
+        <Text type="danger">Ошибка загрузки заказов: {error}</Text>
         <br />
-        <button onClick={() => refetch()}>Попробовать снова</button>
+        <button onClick={() => orderStore.loadOrders()}>Попробовать снова</button> {/* Вызов метода из store */}
       </div>
     );
   }
-
-  const orders = data?.items || [];
 
   if (orders.length === 0) {
     return (
@@ -104,6 +114,6 @@ const OrdersPage: React.FC = () => {
       </Space>
     </div>
   );
-};
+});
 
 export default OrdersPage;

@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react'; // ✅ Импортирован useState
+import { observer } from 'mobx-react-lite'; // ✅ Импортирован observer
 import {
   Button,
   Card,
@@ -12,51 +13,38 @@ import {
   message,
 } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../store';
-import {
-  updateItemQuantity,
-  removeItem,
-  clearCart,
-} from '../store/cartSlice';
+import { useStore } from '../store'; // 
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text, Paragraph } = Typography;
 
-const CartPage: React.FC = () => {
+const CartPage = observer(() => { // 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { cartStore } = useStore(); // 
 
-  const items = useSelector((state: RootState) => state.cart.items);
-
-  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState(''); 
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const totalAmount = useMemo(
-    () =>
-      items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      ),
-    [items]
-  );
+  // Данные теперь из MobX store
+  const items = cartStore.items;
+  const totalAmount = cartStore.totalAmount; // @computed значение из store
 
   const handleUpdateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
       handleRemoveItem(id);
       return;
     }
-    dispatch(updateItemQuantity({ id, quantity }));
+    cartStore.updateItemQuantity(id, quantity); // Вызываем метод из MobX store
   };
 
   const handleRemoveItem = (id: string) => {
-    dispatch(removeItem(id));
+    cartStore.removeItem(id); // Вызываем метод из MobX store
     message.success('Товар удален из корзины');
   };
 
   const handleCreateOrder = async () => {
-    if (items.length === 0) {
+    if (cartStore.isEmpty) { // Используем @computed значение из store
       message.info('Корзина пуста');
       return;
     }
@@ -68,7 +56,7 @@ const CartPage: React.FC = () => {
 
     setSubmitting(true);
     try {
-      dispatch(clearCart());
+      await cartStore.createOrder(deliveryAddress, comment); // Вызываем асинхронный метод из store
       message.success('Заказ успешно создан');
       navigate('/orders');
     } catch (error: any) {
@@ -78,7 +66,7 @@ const CartPage: React.FC = () => {
     }
   };
 
-  if (items.length === 0) {
+  if (cartStore.isEmpty) { // Используем @computed значение из store
     return (
       <Card style={{ maxWidth: 900, margin: '0 auto', borderRadius: 16 }}>
         <Empty description="Корзина пока пуста">
@@ -94,7 +82,6 @@ const CartPage: React.FC = () => {
     <div style={{ maxWidth: 1100, margin: '0 auto' }}>
       <Title level={2}>Корзина</Title>
 
-      {/* ✅ FIX */}
       <Space direction="vertical" style={{ width: '100%' }}>
         <Card style={{ borderRadius: 16 }}>
           <List
@@ -184,7 +171,7 @@ const CartPage: React.FC = () => {
 
             <Paragraph>
               <Text strong>
-                Итого к оплате: {totalAmount.toFixed(2)} ₽
+                Итого к оплате: {totalAmount.toFixed(2)} ₽ {/* Из MobX store */}
               </Text>
             </Paragraph>
 
@@ -201,6 +188,6 @@ const CartPage: React.FC = () => {
       </Space>
     </div>
   );
-};
+});
 
 export default CartPage;

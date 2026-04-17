@@ -1,14 +1,14 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { observer } from 'mobx-react-lite';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
-import { LoginResponse } from 'shared-types';
-import { login } from '../../store/authSlice';
-import { useLoginMutation } from '../../store/api';
+import { LoginRequest, LoginResponse } from 'shared-types';
+import { useStore } from '../../store'; // Импорт MobX store
+import { authApi } from '../../api/auth'; // Импорт API для вызова
 
 const { Title, Text } = Typography;
 
@@ -19,10 +19,9 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-const LoginPage: React.FC = () => {
+const LoginPage: React.FC = observer(() => { // Обернули компонент в observer
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [loginMutation, { isLoading }] = useLoginMutation();
+  const { authStore } = useStore(); // Получаем MobX store
 
   const {
     control,
@@ -36,25 +35,17 @@ const LoginPage: React.FC = () => {
     },
   });
 
-  // ✅ FIX
   const onSubmit = async (data: LoginFormValues) => {
-    try {
-      const response: LoginResponse = await loginMutation(data).unwrap();
+    // Вызываем метод из MobX store, передав ему данные
+    await authStore.login(data as LoginRequest);
 
-      dispatch(
-        login({
-          user: response.user,
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
-        })
-      );
-
+    // Проверяем, успешен ли логин (проверяем наличие пользователя или токена)
+    if (authStore.user) {
       message.success('Добро пожаловать!');
       navigate('/');
-    } catch (error: unknown) {
-      const err = error as any;
-      const errorMessage = err?.data?.message || 'Ошибка авторизации';
-      message.error(errorMessage);
+    } else {
+      // Ошибка уже установлена в store, можно показать её
+      message.error(authStore.error || 'Ошибка авторизации');
     }
   };
 
@@ -126,7 +117,7 @@ const LoginPage: React.FC = () => {
               htmlType="submit"
               size="large"
               block
-              loading={isLoading}
+              loading={authStore.loading} // Используем состояние загрузки из MobX store
             >
               Войти
             </Button>
@@ -144,6 +135,6 @@ const LoginPage: React.FC = () => {
       </Card>
     </div>
   );
-};
+});
 
 export default LoginPage;

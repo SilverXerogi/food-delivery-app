@@ -1,14 +1,14 @@
+// src/main.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Provider } from 'react-redux';
-import { store } from './store';
+import { StoreContext, rootStore } from './store';
 import App from './App';
 import './assets/styles/global.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <Provider store={store}>
+  <StoreContext.Provider value={rootStore}>
     <React.StrictMode>
       <App />
     </React.StrictMode>
-  </Provider>,
+  </StoreContext.Provider>,
 );

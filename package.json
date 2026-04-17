@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
+    "mobx": "^6.15.0",
+    "mobx-react-lite": "^4.1.1",
     "react-redux": "^9.2.0"
   }
 }

@@ -1,17 +1,24 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { authSlice } from './authSlice';
-import { cartSlice } from './cartSlice';
-import { api } from './api';
+// src/stores/index.ts
+import { createContext, useContext } from 'react';
+import { AuthStore } from './authStore';
+import { CartStore } from './cartStore';
+import { ProductStore } from './productStore';
+import { OrderStore } from './orderStore'; // Импортируем новый store
 
-export const store = configureStore({
-  reducer: {
-    auth: authSlice.reducer,
-    cart: cartSlice.reducer,
-    [api.reducerPath]: api.reducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(api.middleware),
-});
+export class RootStore {
+  authStore: AuthStore;
+  cartStore: CartStore;
+  productStore: ProductStore;
+  orderStore: OrderStore; // Добавляем в RootStore
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+  constructor() {
+    this.authStore = new AuthStore(this);
+    this.cartStore = new CartStore(this);
+    this.productStore = new ProductStore(this);
+    this.orderStore = new OrderStore(this); // Создаем экземпляр
+  }
+}
+
+export const rootStore = new RootStore();
+export const StoreContext = createContext<RootStore>(rootStore);
+export const useStore = () => useContext(StoreContext);

@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
+import { observer } from 'mobx-react-lite';
 import {
   Alert,
   Button,
@@ -14,62 +15,32 @@ import {
   Typography,
   message,
 } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
-import type { Product, GetProductsParams } from 'shared-types';
-import { useGetProductsQuery } from '../store/api';
-import { addItem } from '../store/cartSlice';
-import { RootState } from '../store';
+import type { Product } from 'shared-types';
+import { useStore } from '../store'; // Импорт MobX store
 
 const { Title, Paragraph, Text } = Typography;
 
-const HomePage: React.FC = () => {
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<string | undefined>(undefined);
-  const dispatch = useDispatch();
+const HomePage: React.FC = observer(() => { // Обернули компонент в observer
+  const { productStore, authStore, cartStore } = useStore(); // Получаем MobX stores
 
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  );
+  // Данные из productStore
+  const products = productStore.filteredProducts; // или productStore.products, в зависимости от логики
+  const isLoading = productStore.loading;
+  const error = productStore.error;
 
-  const params: GetProductsParams = {
-    limit: 24,
-    search: search || undefined,
-    categoryId: category || undefined,
-  };
+  // Данные из authStore
+  const isAuthenticated = authStore.isAuthenticated;
 
-  const { data, error, isLoading, refetch } = useGetProductsQuery(params);
+  const categoryOptions = productStore.categories.map(cat => ({
+    value: cat.id,
+    label: cat.name,
+  }));
 
-  const products = data?.items || [];
-
-  const categoryOptions = useMemo(() => {
-    const map = new Map<string, string>();
-    products.forEach((product) =>
-      map.set(product.categoryId, product.categoryName)
-    );
-    return Array.from(map.entries()).map(([value, label]) => ({
-      value,
-      label,
-    }));
-  }, [products]);
-
-  const filteredProducts = useMemo(() => {
-    if (!data) return [];
-
-    return products.filter((product) => {
-      const matchesCategory =
-        !category || product.categoryId === category;
-
-      const normalizedSearch = search.trim().toLowerCase();
-
-      const matchesSearch =
-        !normalizedSearch ||
-        `${product.name} ${product.description}`
-          .toLowerCase()
-          .includes(normalizedSearch);
-
-      return matchesCategory && matchesSearch;
-    });
-  }, [products, search, category, data]);
+  React.useEffect(() => {
+    if (productStore.products.length === 0) {
+      productStore.loadProducts({ limit: 24 });
+    }
+  }, []);
 
   const handleAddToCart = (product: Product) => {
     if (!isAuthenticated) {
@@ -77,26 +48,25 @@ const HomePage: React.FC = () => {
       return;
     }
 
-    dispatch(
-      addItem({
-        productId: product.id,
-        productName: product.name,
-        productImageUrl: product.imageUrl,
-        price: product.price,
-        quantity: 1,
-        weight: product.weight,
-      })
-    );
+    cartStore.addItem(product, 1); // Вызываем метод из MobX store
 
     message.success(`${product.name} добавлен в корзину`);
   };
 
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div style={{ padding: '40px', textAlign: 'center' }}>
-        <Text type="danger">Ошибка загрузки каталога</Text>
+        <Text type="danger">Ошибка загрузки каталога: {error}</Text>
         <br />
-        <Button onClick={() => refetch()}>Попробовать снова</Button>
+        <Button onClick={() => productStore.loadProducts({ limit: 24 })}>Попробовать снова</Button>
       </div>
     );
   }
@@ -128,29 +98,25 @@ const HomePage: React.FC = () => {
             allowClear
             placeholder="Поиск по названию или описанию"
             style={{ width: 320 }}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={productStore.search}
+            onChange={(e) => productStore.setSearch(e.target.value)} // Устанавливаем в store
           />
           <Select
             allowClear
             placeholder="Категория"
             style={{ width: 220 }}
-            value={category}
-            onChange={setCategory}
+            value={productStore.category || undefined}
+            onChange={(value) => productStore.setCategory(value || null)} // Устанавливаем в store
             options={categoryOptions}
           />
         </Space>
       </Card>
 
-      {isLoading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>
-          <Spin size="large" />
-        </div>
-      ) : filteredProducts.length === 0 ? (
+      {products.length === 0 ? (
         <Empty description="Продукты не найдены" />
       ) : (
         <Row gutter={[16, 16]}>
-          {filteredProducts.map((product) => (
+          {products.map((product) => (
             <Col xs={24} sm={12} lg={8} xl={6} key={product.id}>
               <Card
                 hoverable
@@ -206,6 +172,6 @@ const HomePage: React.FC = () => {
       )}
     </div>
   );
-};
+});
 
 export default HomePage;

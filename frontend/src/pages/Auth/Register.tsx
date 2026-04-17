@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { observer } from 'mobx-react-lite';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import {
   UserOutlined,
@@ -11,9 +11,9 @@ import {
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
-import type { LoginResponse, RegisterRequest } from 'shared-types';
-import { login } from '../../store/authSlice';
-import { useRegisterMutation } from '../../store/api';
+import type { RegisterRequest } from 'shared-types';
+import { useStore } from '../../store'; // Импорт MobX store
+import { authApi } from '../../api/auth'; // Импорт API для вызова (на случай, если нужно в store)
 
 const { Title, Text } = Typography;
 
@@ -33,13 +33,10 @@ const registerSchema = z
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-const RegisterPage: React.FC = () => {
+const RegisterPage: React.FC = observer(() => { // Обернули компонент в observer
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { authStore } = useStore(); // Получаем MobX store
 
-  const [registerMutation, { isLoading }] = useRegisterMutation();
-
-  // ✅ FIX
   const {
     control,
     handleSubmit,
@@ -57,27 +54,19 @@ const RegisterPage: React.FC = () => {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    try {
-      const { confirmPassword, ...userData } = data;
+    // Удаляем confirmPassword из данных, т.к. он не нужен для API
+    const { confirmPassword, ...userData } = data;
 
-      const response: LoginResponse = await registerMutation(
-        userData as RegisterRequest
-      ).unwrap();
+    // Вызываем метод из MobX store, передав ему данные
+    await authStore.register(userData as RegisterRequest);
 
-      dispatch(
-        login({
-          user: response.user,
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
-        })
-      );
-
+    // Проверяем, успешна ли регистрация (проверяем наличие пользователя или токена)
+    if (authStore.user) {
       message.success('Регистрация успешна!');
       navigate('/');
-    } catch (error: unknown) {
-      const err = error as any;
-      const errorMessage = err?.data?.message || 'Ошибка регистрации';
-      message.error(errorMessage);
+    } else {
+      // Ошибка уже установлена в store, можно показать её
+      message.error(authStore.error || 'Ошибка регистрации');
     }
   };
 
@@ -228,7 +217,7 @@ const RegisterPage: React.FC = () => {
               htmlType="submit"
               size="large"
               block
-              loading={isLoading}
+              loading={authStore.loading} // Используем состояние загрузки из MobX store
             >
               Зарегистрироваться
             </Button>
@@ -246,6 +235,6 @@ const RegisterPage: React.FC = () => {
       </Card>
     </div>
   );
-};
+});
 
 export default RegisterPage;
