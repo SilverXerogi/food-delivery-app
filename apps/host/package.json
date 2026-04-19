@@ -1,0 +1,38 @@
+{
+  "name": "@food-delivery-app/host",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "webpack serve --config webpack.config.js",
+    "build": "webpack --config webpack.config.js --mode production"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "@hookform/resolvers": "^3.10.0",
+    "@reduxjs/toolkit": "^2.11.2",
+    "antd": "^5.29.3",
+    "axios": "^1.13.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.71.2",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^6.30.3",
+    "zod": "^3.25.76",
+    "zustand": "^5.0.11"
+  },
+  "devDependencies": {
+    "@food-delivery-app/shared-config": "*",
+    "@types/node": "^25.3.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/webpack": "^5.28.5",
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.3",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.2"
+  }
+}

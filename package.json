@@ -1,6 +1,29 @@
 {
+  "name": "food-delivery-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo for food delivery application with microfrontends",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "shared-types"
+  ],
+  "scripts": {
+    "build:shared-config": "npm run build --workspace=@food-delivery-app/shared-config",
+    "build:host": "npm run build --workspace=@food-delivery-app/host",
+    "build:catalog-mfe": "npm run build --workspace=@food-delivery-app/catalog-mfe",
+    "build:cabinet-mfe": "npm run build --workspace=@food-delivery-app/cabinet-mfe",
+    "build:all": "npm run build:shared-config && npm run build:host && npm run build:catalog-mfe && npm run build:cabinet-mfe",
+    "dev:host": "npm run dev --workspace=@food-delivery-app/host",
+    "dev:catalog-mfe": "npm run dev --workspace=@food-delivery-app/catalog-mfe",
+    "dev:cabinet-mfe": "npm run dev --workspace=@food-delivery-app/cabinet-mfe",
+    "dev:services": "concurrently \"npm run dev --workspace=auth-service\" \"npm run dev --workspace=catalog-service\" \"npm run dev --workspace=cabinet-service\""
+  },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
     "react-redux": "^9.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
